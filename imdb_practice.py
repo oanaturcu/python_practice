@@ -11,8 +11,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-
 # Load the needed datasets here
 ratings = pd.read_csv('imdb_datasets/ratings.csv')
 tags = pd.read_csv('imdb_datasets/tags.csv')
@@ -100,14 +98,16 @@ is_adventure = movies['genres'].str.contains('Adventure')
 comedies = movies[is_comedy]
 comedies_count = comedies['genres'].value_counts()
 print(comedies_count)
-comedies_count[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies", title="Comedies by label", grid='True', color='yellow')
+comedies_count[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies",
+                         title="Comedies by label", grid='True', color='yellow')
 plt.show()
 
 
 comedies_scifi = movies[is_sf & is_comedy]
 com_sf_counts = comedies_scifi['genres'].value_counts()
 print(com_sf_counts)
-com_sf_counts[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies", title="Comedies & SF by label", grid='True', color='cyan')
+com_sf_counts[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies",
+                        title="Comedies & SF by label", grid='True', color='cyan')
 plt.show()
 
 # 3. Grouping and aggregates on a single dataframe
@@ -117,7 +117,8 @@ plt.show()
 print(ratings.head())
 rating_value_counts = ratings[['movieId', 'rating']].groupby('rating').count()
 print(rating_value_counts)
-rating_value_counts.plot(kind='bar', xlabel="Rating value", ylabel="# movies", title="Movies by rating", grid='True', color='black')
+rating_value_counts.plot(kind='bar', xlabel="Rating value", ylabel="# movies",
+                         title="Movies by rating", grid='True', color='black')
 plt.show()
 
 # 3.2 Plot a graph of movies rating (on average, first or last n records)
@@ -125,7 +126,8 @@ plt.show()
 movies_avg_rating = ratings[['movieId', 'rating']].groupby('movieId').mean()
 movies_avg_rating_sorted = movies_avg_rating.sort_values(by='rating', ascending=False)
 print(movies_avg_rating_sorted)
-movies_avg_rating_sorted[:10].plot(kind='bar', xlabel="Movie ID", ylabel="Average Rating", grid='True', title="Top 10 Best Rated Movies", color='red')
+movies_avg_rating_sorted[:10].plot(kind='bar', xlabel="Movie ID", ylabel="Average Rating", grid='True',
+                                   title="Top 10 Best Rated Movies", color='red')
 plt.show()
 
 # 4. Merging dataframes
@@ -140,7 +142,7 @@ rating_titles = rating_titles.merge(tags, on='movieId', how='inner')
 
 # delete unneeded columns & rename _x suffixed ones
 rating_titles.drop(columns=['timestamp_y', 'userId_y'], inplace=True)
-rating_titles.rename(columns={'timestamp_x':'timestamp', 'userId_x':'userId'}, inplace=True)
+rating_titles.rename(columns={'timestamp_x': 'timestamp', 'userId_x': 'userId'}, inplace=True)
 
 
 # check the whole dataset in a csv to see the results of the merge
@@ -171,7 +173,8 @@ rating_titles.to_csv('./exports/ratings_enriched.csv')
 
 movies_titles_avg_rating = rating_titles[['title', 'rating']].groupby('title').mean()
 movies_titles_avg_rating_sorted = movies_titles_avg_rating.sort_values(by='rating', ascending=False)
-movies_titles_avg_rating_sorted[:10].plot(kind='bar', xlabel="Movie ID", ylabel="Average Rating", grid='True', title="Top 10 Best Rated Movies", color='pink')
+movies_titles_avg_rating_sorted[:10].plot(kind='bar', xlabel="Movie ID", ylabel="Average Rating",
+                                          grid='True', title="Top 10 Best Rated Movies", color='pink')
 plt.show()
 
 # 5.2 Top 10 most reviewed movies avg ratings
@@ -192,7 +195,8 @@ top10_reviewed_avg_rating = top10_reviewed_ratings[['title', 'rating']].groupby(
 top10_reviewed_avg_rating = top10_reviewed_avg_rating.sort_values(by='rating', ascending=True)
 
 # Plot
-top10_reviewed_avg_rating.plot(kind='bar', xlabel="Movie Name", ylabel="Avg Rating", grid=True, title="Most rated movies of all time", color='green')
+top10_reviewed_avg_rating.plot(kind='bar', xlabel="Movie Name", ylabel="Avg Rating", grid=True,
+                               title="Most rated movies of all time", color='green')
 plt.show()
 
 # 5.3 Average rating by year (timestamp from the review)
@@ -200,7 +204,8 @@ plt.show()
 # We can use either the rating_titles dataframe or the ratings enriched csv file
 
 rating_by_year = rating_titles[['rating_year', 'rating']].groupby('rating_year').mean()
-rating_by_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=True, title="Average movie rating by year")
+rating_by_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=True,
+                    title="Average movie rating by year")
 # set y axis to start at 0
 plt.ylim(ymin=0)
 plt.show()
@@ -213,6 +218,7 @@ starwars = rating_titles[is_starwars]
 
 # Avg rating by year
 starwars_year = starwars[['rating_year', 'rating']].groupby('rating_year').mean()
-starwars_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=True, title="Average Star Wars Episode 4 Ratings by year")
+starwars_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=True,
+                   title="Average Star Wars Episode 4 Ratings by year")
 plt.ylim(ymin=0)
 plt.show()
