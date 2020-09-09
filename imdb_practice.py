@@ -12,6 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
+
 # Load the needed datasets here
 ratings = pd.read_csv('imdb_datasets/ratings.csv')
 tags = pd.read_csv('imdb_datasets/tags.csv')
@@ -26,7 +27,7 @@ print(ratings.head())
 print(tags.head())
 print(movies.head())
 
-# 1.2 Perform data quality checks - null values &
+# 1.2 Perform data quality checks - null values
 
 print(ratings.isnull().any())
 print(tags.isnull().any())
@@ -99,14 +100,56 @@ is_adventure = movies['genres'].str.contains('Adventure')
 comedies = movies[is_comedy]
 comedies_count = comedies['genres'].value_counts()
 print(comedies_count)
-comedies_count[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies", title="Comedies by genre", grid='True')
+comedies_count[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies", title="Comedies by label", grid='True')
 plt.show()
 
 
 comedies_scifi = movies[is_sf & is_comedy]
 com_sf_counts = comedies_scifi['genres'].value_counts()
 print(com_sf_counts)
-com_sf_counts[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies", title="Comedies & SF by genre", grid='True')
+com_sf_counts[:10].plot(kind='bar', xlabel="Genre", ylabel="# movies", title="Comedies & SF by label", grid='True')
 plt.show()
 
-# 3. Merging dataframes for more in-depth analysis
+# 3. Grouping and aggregates on a single dataframe
+
+# 3.1 Plot a graph of ratings count per rating value
+
+print(ratings.head())
+rating_value_counts = ratings[['movieId', 'rating']].groupby('rating').count()
+print(rating_value_counts)
+rating_value_counts.plot(kind='bar', xlabel="Rating value", ylabel="# movies", title="Movies by rating", grid='True', color='black')
+plt.show()
+
+# 3.2 Plot a graph of movies rating (on average, first or last n records)
+
+movies_avg_rating = ratings[['movieId', 'rating']].groupby('movieId').mean()
+movies_avg_rating_sorted = movies_avg_rating.sort_values(by='rating', ascending=False)
+print(movies_avg_rating_sorted)
+movies_avg_rating_sorted[:10].plot(kind='bar', xlabel="Movie ID", ylabel="Average Rating", title="Top 10 Best Rated Movies", color='red')
+plt.show()
+
+# 4. Merging dataframes & various statistics on the resulting dataframe
+# Enrich the ratings dataframe with information from the movies one
+# in order to generate statistics on movie titles, years etc.
+# Extract the ratings relevant time stamps
+
+# 4.1 Bring the rating in the movies dataframe
+
+rating_titles = movies.merge(ratings, on='movieId', how='inner')
+
+# 4.2 Extract the year of the movie from the title
+
+rating_titles['movie_year'] = rating_titles['title'].str.extract('.*\((.*)\).*', expand=True)
+
+# 4.3 Parse the timestamp of the rating (UNIX time to readable datetime format)
+# Extract years, months, days, weekdays, week numbers for the ratings
+# Export to CSV if needed to use as a standalone file
+
+rating_titles['parsed_date'] = pd.to_datetime(rating_titles['timestamp'], unit='s')
+rating_titles['rating_year'] = rating_titles['parsed_date'].dt.strftime('%Y')
+rating_titles['rating_month'] = rating_titles['parsed_date'].dt.strftime('%B')
+rating_titles['rating_day'] = rating_titles['parsed_date'].dt.strftime('%d')
+rating_titles['rating_weekday'] = rating_titles['parsed_date'].dt.strftime('%A')
+rating_titles['rating_week_number'] = rating_titles['parsed_date'].dt.strftime('%W')
+rating_titles.to_csv('ratings_enriched.csv')
+print(rating_titles)
