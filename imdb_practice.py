@@ -193,6 +193,26 @@ top10_reviewed_avg_rating = top10_reviewed_avg_rating.sort_values(by='rating', a
 
 # Plot
 top10_reviewed_avg_rating.plot(kind='bar', xlabel="Movie Name", ylabel="Avg Rating", grid=True, title="Most rated movies of all time", color='green')
+#plt.show()
+
+# 5.3 Average rating by year (timestamp from the review)
+
+# We can use either the rating_titles dataframe or the ratings enriched csv file
+
+rating_by_year = rating_titles[['rating_year', 'rating']].groupby('rating_year').mean()
+rating_by_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=True, title="Average movie rating by year")
+# set y axis to start at 0
+#plt.ylim(ymin=0)
+#plt.show()
+
+# 5.4 How do the ratings vary for Star Wars IV - A New Hope (movieId=260)
+# based on when the review was done
+
+is_starwars = rating_titles['movieId'] == 260
+starwars = rating_titles[is_starwars]
+
+# Avg rating by year
+starwars_year = starwars[['rating_year', 'rating']].groupby('rating_year').mean()
+starwars_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=True, title="Average Star Wars Episode 4 Ratings by year")
+plt.ylim(ymin=0)
 plt.show()
-
-
