@@ -211,7 +211,7 @@ plt.ylim(ymin=0)
 plt.show()
 
 # 5.4 How do the ratings vary for Star Wars IV - A New Hope (movieId=260)
-# based on when the review was done
+# based on the year when the review was done
 
 is_starwars = rating_titles['movieId'] == 260
 starwars = rating_titles[is_starwars]
@@ -222,3 +222,22 @@ starwars_year.plot(kind='line', xlabel="Year", ylabel="Average rating", grid=Tru
                    title="Average Star Wars Episode 4 Ratings by year")
 plt.ylim(ymin=0)
 plt.show()
+
+# 5.5 Is there any variance for ratings based on the day of the week of the review?
+
+ratings_weekday = rating_titles[['rating_weekday', 'rating']].groupby('rating_weekday', as_index=False).mean()
+print(ratings_weekday)
+
+# Sorting the weekdays in order using Categorical data
+
+ratings_weekday['rating_weekday'] = pd.Categorical(ratings_weekday['rating_weekday'],
+                                                   ["Monday", "Tuesday", "Wednesday", "Thursday",
+                                                    "Friday", "Saturday", "Sunday"])
+ratings_weekday_sorted = ratings_weekday.sort_values("rating_weekday")
+ratings_weekday_sorted.plot(x='rating_weekday', kind='bar', xlabel="Year", ylabel="Average rating", grid=True,
+                     title="Avg. Rating by Weekday")
+plt.ylim(ymin=0)
+plt.show()
+
+# Same logic applies to sorting by month: groupby, calculate mean, create categorical, sort by categorical,
+# plot the sorted result.
