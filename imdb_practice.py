@@ -241,3 +241,4 @@ plt.show()
 
 # Same logic applies to sorting by month: groupby, calculate mean, create categorical, sort by categorical,
 # plot the sorted result.
+
