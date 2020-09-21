@@ -1,6 +1,14 @@
 
+.idea
+
+exports
+ml_datasets
+world_indicators
+imdb_datasets
+
 /exports
 /exports/*
+
 
 /imdb_datasets
 /ml_datasets
