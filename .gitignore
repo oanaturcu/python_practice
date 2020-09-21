@@ -4,8 +4,12 @@
 
 /imdb_datasets
 /ml_datasets
+/ml_datasets/iris
+/ml_datasets/soccer
+/ml_datasets/weather
 /world_indicators
 
 /imdb_datasets/*
 /ml_datasets/*
 /world_indicators/*
+
