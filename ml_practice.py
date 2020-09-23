@@ -207,8 +207,8 @@ print("%%%% Logistical Regression Accuracy: ", logr.score(x_iris_test, predictio
 
 # 3. Classification of spinal injuries using Nearest Neighbours
 # The classifier will be build from scratch
-# Part of an assigment in the Introduction to Machine Learning course
-# at UC San Diego
+# Part of an assignment in the Introduction to Machine Learning course
+# at UC San Diego. Dataset provided with the course.
 
 # Load data set and code labels as 0 = ’NO’, 1 = ’DH’, 2 = ’SL’
 labels = [b'NO', b'DH', b'SL']
