@@ -204,3 +204,97 @@ logr.fit(x_iris_train, y_iris_train)
 predictions_iris_logr = logr.predict(x_iris_test)
 print(confusion_matrix(y_iris_test, predictions_iris_logr))
 print("%%%% Logistical Regression Accuracy: ", logr.score(x_iris_test, predictions_iris_logr))
+
+# 3. Classification of spinal injuries using Nearest Neighbours
+# The classifier will be build from scratch
+# Part of an assigment in the Introduction to Machine Learning course
+# at UC San Diego
+
+# Load data set and code labels as 0 = ’NO’, 1 = ’DH’, 2 = ’SL’
+labels = [b'NO', b'DH', b'SL']
+data = np.loadtxt('./ml_datasets/spinal_injury/column_3C.dat', converters={6: lambda s: labels.index(s)})
+
+# Separate features from labels
+x = data[:, 0:6]
+y = data[:, 6]
+
+# Divide into training and test set using ranges
+
+training_indices = list(range(0, 20)) + list(range(40, 188)) + list(range(230, 310))
+test_indices = list(range(20, 40)) + list(range(188, 230))
+
+trainx = x[training_indices, :]
+trainy = y[training_indices]
+testx = x[test_indices, :]
+testy = y[test_indices]
+
+# Define a function to calculate L2 distance
+# inputs: trainx, trainy, testx <-- as defined above
+# output: an np.array of the predicted values for testy
+
+def NN_L2(trainx, trainy, testx):
+
+    # initialize an empty array testy_L2
+    testy_L2 = []
+
+    for i in range(len(testx)):
+        distance = [np.sum(np.square(testx[i] - trainx[j])) for j in range(len(trainx))]
+        # define two iterators i and j
+        # i iterates in the testx array and calculates the Euclidian distance between arrays in the testx data and
+        # arrays in trainx data (iterated by j)
+        # values are stored in the distance array
+        test_predicted = trainy[np.argmin(distance)]
+        # test_predicted stores the smallest value of distance determined by the index of the smallest distance
+        testy_L2.append(test_predicted)
+        # this value is appended to the testy_L2 array
+    return np.asarray(testy_L2)
+
+
+
+# Similar logic applies to defining a function to calculate L1 distance:
+
+def NN_L1(trainx, trainy, testx):
+
+    testy_L1 = []
+    for i in range(len(testx)):
+        distance = [np.sum(np.abs(testx[i] - trainx[j])) for j in range(len(trainx))]
+        test_predicted = trainy[np.argmin(distance)]
+        testy_L1.append(test_predicted)
+    return np.asarray(testy_L1)
+
+testy_L1 = NN_L1(trainx, trainy, testx)
+testy_L2 = NN_L2(trainx, trainy, testx)
+
+# Error estimation via a function based on the values returned by the
+# algorithm vs the actual values in the testy array
+
+def error_rate(testy, testy_fit):
+    return float(sum(testy!=testy_fit))/len(testy)
+
+
+print("Error rate of NN_L1: ", error_rate(testy, testy_L1))
+print("Error rate of NN_L2: ", error_rate(testy, testy_L2))
+
+
+# Confusion matrix building. tbd exactly how it works (understand the logic of adding 1)
+
+# Begin with a zero n*n matrix of unique values of predictions (in this case 3x3)
+# Values corresponding to each element of the two arrays will give out the coordinates for the
+# matrix element to be raised by 1
+# The correctly guessed elements have equal coordinates
+
+# This is why it helps to encode the predictions as numbers, 0, 1, 2... being the best choices
+
+def confusion(testy,testy_fit):
+    matrix_dimension = len(np.unique(testy))
+    confusion = np.zeros((matrix_dimension,matrix_dimension))
+    for i in range(len(testy)):
+        confusion[int(testy[i])][int(testy_fit[i])] += 1
+    return confusion
+
+
+L1_conf = confusion(testy, testy_L1)
+L2_conf = confusion(testy, testy_L2)
+
+print(L1_conf)
+print(L2_conf)
