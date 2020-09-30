@@ -276,7 +276,7 @@ print("Error rate of NN_L1: ", error_rate(testy, testy_L1))
 print("Error rate of NN_L2: ", error_rate(testy, testy_L2))
 
 
-# Confusion matrix building. tbd exactly how it works (understand the logic of adding 1)
+# Confusion matrix building.
 
 # Begin with a zero n*n matrix of unique values of predictions (in this case 3x3)
 # Values corresponding to each element of the two arrays will give out the coordinates for the
