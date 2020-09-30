@@ -283,7 +283,6 @@ print("Error rate of NN_L2: ", error_rate(testy, testy_L2))
 # matrix element to be raised by 1
 # The correctly guessed elements have equal coordinates
 
-# This is why it helps to encode the predictions as numbers, 0, 1, 2... being the best choices
 
 def confusion(testy,testy_fit):
     matrix_dimension = len(np.unique(testy))
