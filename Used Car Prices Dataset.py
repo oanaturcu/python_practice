@@ -60,3 +60,52 @@ df['normalized-losses'].replace(np.nan, avg_norm_loss, inplace=True)
 
 avg_bore=df['bore'].astype('float').mean(axis=0)
 df['bore'].replace(np.nan, avg_bore, inplace=True)
+
+avg_stroke = df['stroke'].astype(float).mean(axis=0)
+df['stroke'].replace(np.nan, avg_stroke, inplace=True)
+
+avg_horsepower = df['horsepower'].astype('float').mean(axis=0)
+df['horsepower'].replace(np.nan, avg_horsepower, inplace=True)
+
+avg_peakrpm=df['peak-rpm'].astype('float').mean(axis=0)
+df['peak-rpm'].replace(np.nan, avg_peakrpm, inplace=True)
+
+# For categorical variables, we can replace the missing values with the mode:
+
+# Find out the mode of the number of doors variable
+df['num-of-doors'].value_counts()
+
+# or
+
+df['num-of-doors'].value_counts().idxmax()
+
+# replace the missing 'num-of-doors' values by the most frequent
+df['num-of-doors'].replace(np.nan, 'four', inplace=True)
+
+# Correct data format
+
+# Convert the columns to the correct data types
+
+df.dtypes
+df[['bore', 'stroke']] = df[['bore', 'stroke']].astype('float')
+df[['normalized-losses']] = df[['normalized-losses']].astype('int')
+df[['price']] = df[['price']].astype('float')
+df[['peak-rpm']] = df[['peak-rpm']].astype('float')
+
+# Since we will make predictions based on price, we must drop the
+# rows with empty values for the price column:
+
+df = df.dropna(subset=['price'], axis=0)
+
+# Check again whether we have empty values:
+
+print("########After data munging:")
+
+missing_data = df.isnull()
+for column in missing_data.columns.values.tolist():
+    print(column)
+    print(missing_data[column].value_counts())
+    print("")
+
+# Data standardization
+
