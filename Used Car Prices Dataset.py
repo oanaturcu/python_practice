@@ -110,9 +110,9 @@ for column in missing_data.columns.values.tolist():
 
 # Data standardization & normalization
 
-# Transform mpg to L/100km
-df['city-L/100km'] = 235/df['city-mpg']
-df['highway-L/100km'] = 235/df['highway-mpg']
+# Transform mpg to L/100km (if needed uncomment)
+#df['city-L/100km'] = 235/df['city-mpg']
+#df['highway-mpg'] = 235/df['highway-mpg']
 
 # replace (original value) by (original value)/(maximum value)
 # new values will be in the 0-1 range
@@ -138,7 +138,7 @@ df = pd.concat([df, dummy_variable_2], axis=1)
 
 # delete unneeded columns
 
-df = df.drop(columns=['highway-mpg', 'city-mpg', 'fuel-type'])
+df = df.drop(columns=['fuel-type'])
 
 # save a clean version
 
@@ -165,8 +165,8 @@ plt.ylim(0,)
 plt.show()
 
 
-df[['highway-L/100km', 'price']].corr()
-sns.regplot(x='highway-L/100km', y='price', data=df)
+df[['highway-mpg', 'price']].corr()
+sns.regplot(x='highway-mpg', y='price', data=df)
 plt.show()
 
 # Weak relationship
@@ -205,7 +205,7 @@ engine_loc_counts.index.name = 'engine-location'
 # let's group by the variable "drive-wheels".
 
 # We see that there are 3 different categories of drive wheels.
-#We can then calculate the average price for each of the different categories of data.
+# We can then calculate the average price for each of the different categories of data.
 
 print(df['drive-wheels'].unique())
 df_group_one = df[['drive-wheels', 'body-style', 'price']]
@@ -270,10 +270,10 @@ print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value o
 pearson_coef, p_value = stats.pearsonr(df['engine-size'], df['price'])
 print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
 
-pearson_coef, p_value = stats.pearsonr(df['city-L/100km'], df['price'])
+pearson_coef, p_value = stats.pearsonr(df['city-mpg'], df['price'])
 print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
 
-pearson_coef, p_value = stats.pearsonr(df['highway-L/100km'], df['price'])
+pearson_coef, p_value = stats.pearsonr(df['highway-mpg'], df['price'])
 print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
 
 # ANOVA tests
@@ -311,8 +311,8 @@ Width
 Curb-weight
 Engine-size
 Horsepower
-City-L/100km
-Highway-L/100km
+City-mpg
+highway-mpg
 Wheel-base
 Bore
 
@@ -322,3 +322,136 @@ Categorical variables:
 Drive-wheels
 
 '''
+
+# Predictive Analytics on the automobile set
+
+# Simple linear regression - price as a function of L/100km
+
+from sklearn.linear_model import LinearRegression
+lm = LinearRegression()
+
+# Define features & labels set
+
+X = df[['highway-mpg']]
+Y = df['price']
+
+# Fit the regressor
+
+lm.fit(X, Y)
+
+# Predict
+
+Yhat = lm.predict(X)
+
+# Check results of the regression and the parameters of the regression line
+print(Yhat[0:5])
+print(lm.coef_)
+print(lm.intercept_)
+
+# Visualize the regressors
+
+width = 12
+height = 10
+plt.figure(figsize=(width, height))
+sns.regplot(x='highway-mpg', y='price', data=df)
+plt.ylim(0,)
+plt.show()
+
+# Show residuals
+
+width = 12
+height = 10
+plt.figure(figsize=(width, height))
+sns.residplot(df['highway-mpg'], df['price'])
+plt.show()
+
+
+# Multiple Linear Regression
+lm1 = LinearRegression()
+X1 = df[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg']]
+Y1 = df['price']
+
+# Fit the regressor
+
+lm1.fit(X1, Y1)
+
+# Predict
+
+Yhat1 = lm1.predict(X1)
+
+print(Yhat1[0:5])
+print(lm1.coef_)
+print(lm1.intercept_)
+
+# Visualize the distribution of the predictions vs. actual values
+
+plt.figure(figsize=(width, height))
+
+
+ax1 = sns.distplot(df['price'], hist=False, color="r", label="Actual Value")
+sns.distplot(Yhat1, hist=False, color="b", label="Fitted Values", ax=ax1)
+
+
+plt.title('Actual vs Fitted Values for Price')
+plt.xlabel('Price (in dollars)')
+plt.ylabel('Proportion of Cars')
+
+plt.show()
+plt.close()
+
+# Polynomial Regression
+
+# Plotting function
+
+def PlotPolly(model, independent_variable, dependent_variabble, Name):
+    x_new = np.linspace(15, 55, 100)
+    y_new = model(x_new)
+
+    plt.plot(independent_variable, dependent_variabble, '.', x_new, y_new, '-')
+    plt.title('Polynomial Fit with Matplotlib for Price ~ Highway MPG')
+    ax = plt.gca()
+    ax.set_facecolor((0.898, 0.898, 0.898))
+    fig = plt.gcf()
+    plt.xlabel(Name)
+    plt.ylabel('Price of Cars')
+
+    plt.show()
+    plt.close()
+
+x = df['highway-mpg']
+y = df['price']
+
+# Here we use a polynomial of the 3rd order (cubic)
+f = np.polyfit(x, y, 3)
+p = np.poly1d(f)
+PlotPolly(p, x, y, 'highway-mpg')
+
+
+# Polynomial transform on multiple features
+
+from sklearn.preprocessing import PolynomialFeatures
+pr = PolynomialFeatures(degree=2)
+X1_pr = pr.fit_transform(X1)
+
+# Check the shape of the poly transformed dataset:
+print(X1_pr.shape, X1.shape)
+
+# Use pipelines for simplifying the whole process (scale, poly transform, model fit)
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+# define the pipeline parameters
+Input = [('scale', StandardScaler()), ('polynomial', PolynomialFeatures(include_bias=False)),
+       ('model',LinearRegression())]
+
+# Define and fit the pipe objects
+pipe = Pipeline(Input)
+pipe.fit(X1, Y1)
+
+# Predict
+YhatPipe = pipe.predict(X1)
+print(YhatPipe[0:3])
+
+
+# Testing the performance of the models
