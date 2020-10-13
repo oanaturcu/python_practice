@@ -5,6 +5,14 @@
 # import pandas library & the source file
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
 
 # Read the online file by the URL provides above, and assign it to variable "df"
 path = "https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/DA0101EN/auto.csv"
@@ -146,8 +154,7 @@ df.to_csv('clean_df.csv')
 
 # Exploratory data analysis
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 # list the data types for each column
 print(df.dtypes)
@@ -250,7 +257,7 @@ plt.show()
 
 # Correlation and p-value using stats package
 
-from scipy import stats
+
 
 pearson_coef, p_value = stats.pearsonr(df['wheel-base'], df['price'])
 print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
@@ -327,7 +334,7 @@ Drive-wheels
 
 # Simple linear regression - price as a function of L/100km
 
-from sklearn.linear_model import LinearRegression
+
 lm = LinearRegression()
 
 # Define features & labels set
@@ -429,7 +436,7 @@ PlotPolly(p, x, y, 'highway-mpg')
 
 # Polynomial transform on multiple features
 
-from sklearn.preprocessing import PolynomialFeatures
+
 pr = PolynomialFeatures(degree=2)
 X1_pr = pr.fit_transform(X1)
 
@@ -438,8 +445,7 @@ print(X1_pr.shape, X1.shape)
 
 # Use pipelines for simplifying the whole process (scale, poly transform, model fit)
 
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+
 
 # define the pipeline parameters
 Input = [('scale', StandardScaler()), ('polynomial', PolynomialFeatures(include_bias=False)),
