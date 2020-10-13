@@ -16,17 +16,17 @@ print(df.head(5))
 
 # create headers list (available at https://archive.ics.uci.edu/ml/datasets/Automobile)
 
-headers = ["symboling", "normalized-losses", "make", "fuel-type", "aspiration", "num-of-doors", "body-style",
-           "drive-wheels","engine-location", "wheel-base", "length", "width", "height", "curb-weight", "engine-type",
-           "num-of-cylinders", "engine-size", "fuel-system", "bore", "stroke", "compression-ratio", "horsepower",
-           "peak-rpm", "city-mpg", "highway-mpg", "price"]
+headers = ['symboling', 'normalized-losses', 'make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style',
+           'drive-wheels','engine-location', 'wheel-base', 'length', 'width', 'height', 'curb-weight', 'engine-type',
+           'num-of-cylinders', 'engine-size', 'fuel-system', 'bore', 'stroke', 'compression-ratio', 'horsepower',
+           'peak-rpm', 'city-mpg', 'highway-mpg', 'price']
 df.columns = headers
 print(df.head(10))
 
 
 # data wrangling
 # we need to replace the "?" symbol with NaN so the dropna() can remove the missing values
-df.replace("?", np.nan, inplace=True)
+df.replace('?', np.nan, inplace=True)
 
 # identify missing values
 
@@ -50,3 +50,13 @@ for column in missing_data.columns.values.tolist():
     print(missing_data[column].value_counts())
     print("")
 
+# For each of the columns that are missing data, we will adopt a particular
+# way of dealing with missing data.
+
+# Replace by mean:
+
+avg_norm_loss = df['normalized-losses'].astype('float').mean(axis=0)
+df['normalized-losses'].replace(np.nan, avg_norm_loss, inplace=True)
+
+avg_bore=df['bore'].astype('float').mean(axis=0)
+df['bore'].replace(np.nan, avg_bore, inplace=True)
