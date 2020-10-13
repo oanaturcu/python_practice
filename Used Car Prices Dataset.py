@@ -86,9 +86,10 @@ df['num-of-doors'].replace(np.nan, 'four', inplace=True)
 
 # Convert the columns to the correct data types
 
-df.dtypes
+print(df.dtypes)
+
 df[['bore', 'stroke']] = df[['bore', 'stroke']].astype('float')
-df[['normalized-losses']] = df[['normalized-losses']].astype('int')
+df[['normalized-losses', 'horsepower']] = df[['normalized-losses',  'horsepower']].astype('int')
 df[['price']] = df[['price']].astype('float')
 df[['peak-rpm']] = df[['peak-rpm']].astype('float')
 
@@ -107,5 +108,217 @@ for column in missing_data.columns.values.tolist():
     print(missing_data[column].value_counts())
     print("")
 
-# Data standardization
+# Data standardization & normalization
 
+# Transform mpg to L/100km
+df['city-L/100km'] = 235/df['city-mpg']
+df['highway-L/100km'] = 235/df['highway-mpg']
+
+# replace (original value) by (original value)/(maximum value)
+# new values will be in the 0-1 range
+df['length'] = df['length']/df['length'].max()
+df['width'] = df['width']/df['width'].max()
+df['height'] = df['height']/df['height'].max()
+
+# Binning the horsepower
+
+bins = np.linspace(min(df["horsepower"]), max(df["horsepower"]), 4)
+group_names = ['Low', 'Medium', 'High']
+df['horsepower-binned'] = pd.cut(df['horsepower'], bins, labels=group_names, include_lowest=True)
+
+# Indicator variable for fuel types & aspiration
+
+dummy_variable_1 = pd.get_dummies(df["fuel-type"])
+dummy_variable_1.rename(columns={'gas': 'fuel-type-gas', 'diesel': 'fuel-type-diesel'}, inplace=True)
+dummy_variable_2 = pd.get_dummies(df['aspiration'])
+
+
+df = pd.concat([df, dummy_variable_1], axis=1)
+df = pd.concat([df, dummy_variable_2], axis=1)
+
+# delete unneeded columns
+
+df = df.drop(columns=['highway-mpg', 'city-mpg', 'fuel-type'])
+
+# save a clean version
+
+df.to_csv('clean_df.csv')
+
+# Exploratory data analysis
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# list the data types for each column
+print(df.dtypes)
+
+# for example, we can calculate the correlation
+# between variables of type "int64" or "float64"
+# using the method "corr
+
+print(df.corr())
+
+# Positive linear relationship
+df[['engine-size', 'price']].corr()
+sns.regplot(x='engine-size', y='price', data=df)
+plt.ylim(0,)
+plt.show()
+
+
+df[['highway-L/100km', 'price']].corr()
+sns.regplot(x='highway-L/100km', y='price', data=df)
+plt.show()
+
+# Weak relationship
+df[['peak-rpm', 'price']].corr()
+sns.regplot(x='peak-rpm', y='price', data=df)
+plt.show()
+
+# Categorical variables relationship with price
+
+sns.boxplot(x='body-style', y='price', data=df)
+plt.show()
+
+sns.boxplot(x='engine-location', y='price', data=df)
+plt.show()
+
+sns.boxplot(x='drive-wheels', y="price", data=df)
+plt.show()
+
+
+# Descriptive statistics
+print(df.describe())
+print(df.describe(include=['object']))
+
+# Example of value counts
+drive_wheels_counts = df['drive-wheels'].value_counts().to_frame()
+drive_wheels_counts.rename(columns={'drive-wheels': 'value_counts'}, inplace=True)
+drive_wheels_counts.index.name = 'drive-wheels'
+print(drive_wheels_counts)
+
+# engine-location as variable
+engine_loc_counts = df['engine-location'].value_counts().to_frame()
+engine_loc_counts.rename(columns={'engine-location': 'value_counts'}, inplace=True)
+engine_loc_counts.index.name = 'engine-location'
+
+# grouping
+# let's group by the variable "drive-wheels".
+
+# We see that there are 3 different categories of drive wheels.
+#We can then calculate the average price for each of the different categories of data.
+
+print(df['drive-wheels'].unique())
+df_group_one = df[['drive-wheels', 'body-style', 'price']]
+df_group_one = df_group_one.groupby(['drive-wheels'], as_index=False).mean()
+print(df_group_one)
+
+# grouping results multiple variable
+df_gptest = df[['drive-wheels', 'body-style', 'price']]
+grouped_test1 = df_gptest.groupby(['drive-wheels', 'body-style'],as_index=False).mean()
+print(grouped_test1)
+
+# Pivoting
+grouped_pivot = grouped_test1.pivot(index='drive-wheels',columns='body-style')
+grouped_pivot = grouped_pivot.fillna(0) # fill missing values with 0
+print(grouped_pivot)
+
+# heatmap using the grouped results
+fig, ax = plt.subplots()
+im = ax.pcolor(grouped_pivot, cmap='RdBu')
+
+# label names
+
+row_labels = grouped_pivot.columns.levels[1]
+col_labels = grouped_pivot.index
+
+# move ticks and labels to the center
+
+ax.set_xticks(np.arange(grouped_pivot.shape[1]) + 0.5, minor=False)
+ax.set_yticks(np.arange(grouped_pivot.shape[0]) + 0.5, minor=False)
+
+# insert labels
+
+ax.set_xticklabels(row_labels, minor=False)
+ax.set_yticklabels(col_labels, minor=False)
+
+# rotate label if too long
+
+plt.xticks(rotation=90)
+
+fig.colorbar(im)
+plt.show()
+
+# Correlation and p-value using stats package
+
+from scipy import stats
+
+pearson_coef, p_value = stats.pearsonr(df['wheel-base'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
+
+pearson_coef, p_value = stats.pearsonr(df['horsepower'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P = ', p_value)
+
+pearson_coef, p_value = stats.pearsonr(df['length'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P = ', p_value)
+
+pearson_coef, p_value = stats.pearsonr(df['width'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value) 
+
+pearson_coef, p_value = stats.pearsonr(df['curb-weight'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
+
+pearson_coef, p_value = stats.pearsonr(df['engine-size'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
+
+pearson_coef, p_value = stats.pearsonr(df['city-L/100km'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
+
+pearson_coef, p_value = stats.pearsonr(df['highway-L/100km'], df['price'])
+print('The Pearson Correlation Coefficient is', pearson_coef, ' with a P-value of P =', p_value)
+
+# ANOVA tests
+
+grouped_test2 = df_gptest[['drive-wheels', 'price']].groupby(['drive-wheels'])
+
+# all 3
+f_val, p_val = stats.f_oneway(grouped_test2.get_group('fwd')['price'], grouped_test2.get_group('rwd')['price'],
+                              grouped_test2.get_group('4wd')['price'])
+print('ANOVA results: F=', f_val, ', P =', p_val)
+
+# 2 by 2
+
+f_val, p_val = stats.f_oneway(grouped_test2.get_group('fwd')['price'], grouped_test2.get_group('rwd')['price'])
+
+print('ANOVA results: F=', f_val, ', P =', p_val)
+
+f_val, p_val = stats.f_oneway(grouped_test2.get_group('4wd')['price'], grouped_test2.get_group('rwd')['price'])
+
+print('ANOVA results: F=', f_val, ', P =', p_val)
+
+f_val, p_val = stats.f_oneway(grouped_test2.get_group('4wd')['price'], grouped_test2.get_group('fwd')['price'])
+
+print('ANOVA results: F=', f_val, ', P =', p_val)
+
+'''
+
+Conclusion: Important Variables
+We now have a better idea of what our data looks like and which variables are important to take into account when predicting the car price. We have narrowed it down to the following variables:
+
+Continuous numerical variables:
+
+Length
+Width
+Curb-weight
+Engine-size
+Horsepower
+City-L/100km
+Highway-L/100km
+Wheel-base
+Bore
+
+
+Categorical variables:
+
+Drive-wheels
+
+'''
