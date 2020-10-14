@@ -45,7 +45,8 @@ df.replace('?', np.nan, inplace=True)
 
 # identify missing values
 
-# The missing values are converted to default. We use the following functions to identify these missing values. There are two methods to detect missing data:
+# The missing values are converted to default. We use the following functions to identify these missing values.
+# There are two methods to detect missing data:
 #
 # .isnull()
 # .notnull()
@@ -316,7 +317,8 @@ print('ANOVA results: F=', f_val, ', P =', p_val)
 '''
 
 Conclusion: Important Variables
-We now have a better idea of what our data looks like and which variables are important to take into account when predicting the car price. We have narrowed it down to the following variables:
+We now have a better idea of what our data looks like and which variables are important to take into account when 
+predicting the car price. We have narrowed it down to the following variables:
 
 Continuous numerical variables:
 
@@ -703,8 +705,10 @@ print('Test R^2: ', poly.score(x_test_pr, y_test))
 # 2nd degree poly transform:
 
 pr = PolynomialFeatures(degree=2)
-x_train_pr = pr.fit_transform(x_train[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg', 'normalized-losses', 'symboling']])
-x_test_pr = pr.fit_transform(x_test[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg', 'normalized-losses', 'symboling']])
+x_train_pr = pr.fit_transform(x_train[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg', 'normalized-losses',
+                                       'symboling']])
+x_test_pr = pr.fit_transform(x_test[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg', 'normalized-losses',
+                                     'symboling']])
 
 # Ridge regressor & fit
 
